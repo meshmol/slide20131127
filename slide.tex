@@ -1,12 +1,12 @@
 \documentclass[dvipdfm,12pt,fleqn]{beamer}
-\usepackage{bm,url,ascmac,amssymb,amsmath,graphicx}
+\usepackage{bm,url,ascmac,amssymb,amsmath,graphicx,multicol}
 \usetheme{Warsaw}
 \usefonttheme[onlymath]{serif}
 \renewcommand{\kanjifamilydefault}{\gtdefault}
 \setbeamertemplate{navigation symbols}{}
 
 \title{What Does R7RS\\ Change Programming in Scheme?}
-\author[Y. Kurosaki \and K. Hishinuma]{Yuta Kurosaki \and Kazuhiro Hishinuma}
+\author[K. Hishinuma]{Kazuhiro Hishinuma (Twitter: @kazh98)}
 \institute[Department of Computer Science, Meiji University]{%
 Department of Computer Science, Meiji University\\%
  1-1-1 Higashimita, Tama-ku, Kawasaki-shi, Kanagawa, 214-8571 Japan}
@@ -15,33 +15,6 @@ Department of Computer Science, Meiji University\\%
 \begin{document}
 \begin{frame}
 \titlepage
-\end{frame}
-
-\begin{frame}{About Speakers}
-\begin{Huge}
-Yuta Kurosaki
-\end{Huge}\\
-Web Science Laboratory, Meiji University.
-
-\begin{itemize}
-\item A developer of Meiji Scheme Shell
-\item IPA Security \& Programming Camp 2010 OB\\
-(Operation system class, programming course)
-\item Twitter: @kuro\_m88
-\end{itemize}
-\end{frame}
-
-\begin{frame}{About Speakers}
-\begin{Huge}
-Kazuhiro Hishinuma
-\end{Huge}\\
-Mathematical Optimization Laboratory, Meiji University.
-
-\begin{itemize}
-\item Shibuya.lisp Member
-\item Interested in mathematics and Scheme
-\item Twitter: @kazh98
-\end{itemize}
 \end{frame}
 
 \begin{frame}{What is the Schemers' Soul?}
@@ -77,7 +50,7 @@ R7RS-small draft\\
 \Large
 ``Scheme demonstrates that\\
 \pause \alert{a very small number of rules}\\
-for forming expressions,\pause with no restrictions\\
+for forming expressions, \pause with no restrictions\\
 \pause \alert{on how they are composed}."
 \end{frame}
 
@@ -88,13 +61,172 @@ Let us think what is\\
 In R$^7$RS Scheme.
 \end{frame}
 
-% TOPIC1: Record-type pp.27--
-% TOPIC2: Library System pp.28--
-% TOPIC3: Exceptions pp.54--
-% TOPIC4: Other Changes
-%   Case sensitivity is now the default in symbols and character names.
-%   Case-lambda pp.21--
-%   The call-with-current-continuation procedure now has the synonym call/cc.
+\begin{frame}{Three Hot Changes\footnotemark[1]}
+\huge
+\begin{itemize}
+\item Record-type (cf. pp.27--)
+\item Library System (cf. pp.28--)
+\item Exceptions (cf. pp.54--)
+\end{itemize}
+
+\footnotetext[1]{from R$^5$RS}
+\end{frame}
+
+\begin{frame}{Three Hot Changes\footnotemark[1]}
+\huge
+\begin{itemize}
+\item \alert{Record-type} (cf. pp.27--)
+\item Library System (cf. pp.28--)
+\item Exceptions (cf. pp.54--)
+\end{itemize}
+
+\footnotetext[1]{from R$^5$RS}
+\end{frame}
+
+\begin{frame}{Record-type}
+\begin{screen}
+(\textbf{define-record-type} \textit{name}\\
+\hspace{1em}(\textbf{\textit{cname}} \textit{f$_1$} \textit{f$_2$} ...)\\
+\hspace{1em}\textit{pred?}\\
+\hspace{1em}(\textit{f$_1$} \textit{ref-f$_1$} \textit{set-f$_1$!})\\
+\hspace{1em}(\textit{f$_2$} \textit{ref-f$_2$} \textit{set-f$_2$!})\\
+\hspace{1em}...)
+\end{screen}
+\begin{description}
+\item[name] Name of the record to be defined
+\item[pred?] Name of the predicatior for this record
+\item[f$_1$, f$_2$, ...] Names of the fields of this record
+\end{description}
+\end{frame}
+
+\begin{frame}[containsverbatim]{e.g. CONS, CAR, CDR}
+\textbf{Existing method:}
+\begin{screen}
+(\textbf{define} (\textbf{cons} a b)\\
+\hspace{1em}(\textbf{lambda} (s) (\textbf{s} a b)))\\
+(\textbf{define} (\textbf{car} c)\\
+\hspace{1em}(\textbf{c} (\textbf{lambda} (a b) a)))\\
+(\textbf{define} (\textbf{cdr} c)\\
+\hspace{1em}(\textbf{c} (\textbf{lambda} (a b) b)))\\
+\end{screen}
+
+\begin{multicols}{2}
+\begin{verbatim}
+(define c (cons 'a 'b))
+(car c) ;=> 'a
+(cdr c) ;=> 'b
+(pair? c) ;=> ?!
+(set-car! c 'd)
+(car c) ;=> ?!
+\end{verbatim}
+\end{multicols}
+\end{frame}
+
+\begin{frame}[containsverbatim]{e.g. CONS, CAR, CDR}
+\textbf{Proposed method:}
+\begin{screen}
+(\textbf{define-record-type} $<$pair$>$\\
+\hspace{1em}(\textbf{cons} a b)\\
+\hspace{1em}pair?\\
+\hspace{1em}(a car set-car!)\\
+\hspace{1em}(b cdr set-cdr!))
+\end{screen}
+
+\begin{multicols}{2}
+\begin{verbatim}
+(define c (cons 'a 'b))
+(car c) ;=> 'a
+(cdr c) ;=> 'b
+(pair? c) ;=> #t
+(set-car! c 'd)
+(car c) ;=> 'd
+\end{verbatim}
+\end{multicols}
+\end{frame}
+
+\begin{frame}{define-record-type give Scheme ...}
+\Huge\pause
+The seed of\\
+\alert{Object-Oriented} Programming!
+\end{frame}
+
+\begin{frame}{Three Hot Changes\footnotemark[1]}
+\huge
+\begin{itemize}
+\item Record-type (cf. pp.27--)
+\item \alert{Library System} (cf. pp.28--)
+\item Exceptions (cf. pp.54--)
+\end{itemize}
+
+\footnotetext[1]{from R$^5$RS}
+\end{frame}
+
+\begin{frame}{Good news!}
+\huge
+Notation for library system\\
+is \alert{standardized}!!
+\end{frame}
+
+\begin{frame}{How to load SRFI-1}
+\Huge
+\begin{description}
+\item[Gauche] (\textbf{use} srfi-1)
+\item[Guile] (\textbf{srfi} srfi-1)
+\item[Racket] (\textbf{require} srfi/1)
+\pause
+\item[R$^7$RS] (\alert{\textbf{import}} srfi-1)
+\end{description}
+\end{frame}
+
+\begin{frame}{How to make a library}
+\begin{screen}
+(\textbf{define-library} \textit{name}\\
+\hspace{1em}(\textbf{export} \textit{ep} ...)\\
+\hspace{1em}(\textbf{define} (p1 args ...)\\
+\hspace{2em}...) ...)\\
+\end{screen}
+
+\begin{description}
+\item[name]Name of the library
+\item[ep ...]List of names to be exported
+\end{description}
+\end{frame}
+
+\begin{frame}{Three Hot Changes\footnotemark[1]}
+\huge
+\begin{itemize}
+\item Record-type (cf. pp.27--)
+\item Library System (cf. pp.28--)
+\item \alert{Exceptions} (cf. pp.54--)
+\end{itemize}
+\end{frame}
+
+\begin{frame}{What's this?}
+\Huge
+SRFI-34 is \alert{included}\\
+in R$^7$RS!
+\end{frame}
+
+\begin{frame}{with-exception-handler}
+e.g.
+\begin{screen}
+(\textbf{with-exception-handler}\\
+\hspace{1em}(\textbf{lambda} (e) \textit{Handler for Exception e})\\
+\hspace{1em}(\textbf{lambda} () \textit{Procedure which may raise exception}))
+\end{screen}
+\begin{screen}
+(\textbf{error} "This is an error message.")
+\end{screen}
+\end{frame}
+
+\begin{frame}{Other Changes}
+\Large
+\begin{itemize}
+\pause\item Case sensitivity is now the default in symbols and character names.
+\pause\item Case-lambda (cf. pp.21--)
+\pause\item The call-with-current-continuation procedure now has the synonym call/cc.
+\end{itemize}
+\end{frame}
 
 \begin{frame}
 \Huge
