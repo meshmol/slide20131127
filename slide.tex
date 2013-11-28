@@ -174,13 +174,13 @@ is \alert{standardized}!!
 \item[Guile] (\textbf{srfi} srfi-1)
 \item[Racket] (\textbf{require} srfi/1)
 \pause
-\item[R$^7$RS] (\alert{\textbf{import}} srfi-1)
+\item[R$^7$RS] (\alert{\textbf{import}} (srfi 1))
 \end{description}
 \end{frame}
 
 \begin{frame}{How to make a library}
 \begin{screen}
-(\textbf{define-library} \textit{name}\\
+(\textbf{define-library} (\textit{name} ...)\\
 \hspace{1em}(\textbf{export} \textit{ep} ...)\\
 \hspace{1em}(\textbf{define} (p1 args ...)\\
 \hspace{2em}...) ...)\\
